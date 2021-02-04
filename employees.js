@@ -1,10 +1,38 @@
-var mysql = require("mysql");
+//Dependencies
+
 var inquirer = require("inquirer");
-const cTable = require('console.table');
+const cTable = require("console.table");
 const connection = require("./connection");
 
 // connect to the mysql server and sql database
-connection.connect(function(err) {
+connection.connect(function (err) {
   if (err) throw err;
   console.log("connected as id " + connection.threadId);
 });
+
+// function to view all departments
+function viewAllDepartments() {
+  connection.query("select * from department", function (err, res) {
+    if (err) throw err;
+    console.table(res);
+  });
+}
+
+//function to view all roles
+function viewAllRoles() {
+  connection.query("select * from role", function (err, res) {
+    if (err) throw err;
+    console.table(res);
+  });
+}
+// function to view all employees
+function viewAllEmployees() {
+  connection.query("select * from employee", function (err, res) {
+    if (err) throw err;
+    console.table(res);
+  });
+}
+
+viewAllDepartments();
+viewAllRoles();
+viewAllEmployees();
