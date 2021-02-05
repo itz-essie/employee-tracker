@@ -55,110 +55,28 @@ const givenOptions = () => {
         type: "list",
         message: "What would you like to do?",
         name: "userChoice",
-        choices: ["Add", "View", "Update", "Delete"],
+        choices: ["View All Employees", "Edit Employeee Info", "View Roles", "Edit Roles", "View Departments", "Edit Departments"]
       },
     ])
     .then((response) => {
       switch (response.userChoice) {
-        case "Add":
-          return addWhat();
-        case "View":
-          return viewWhat();
-        case "Update":
-          return updateWhat();
-        case "Delete":
-          return deleteWhat();
+        case "View All Employees":
+          return viewAllEmployees();
+        case "Edit Employeee Info":
+          return editEmployeeInfo();
+        case "View Roles":
+          return viewAllRoles();
+        case "Edit Roles":
+          return editRoles();
+        case "View Departments":
+          return viewAllDepartments();
+        case "Edit Departments":
+          return editDepartments();
       }
     });
 };
 
-const addWhat = () => {
-  inquirer
-    .prompt([
-      {
-        type: "list",
-        message: "Please choose what you would like to add.",
-        name: "toAdd",
-        choices: ["Department", "Role", "Employee"],
-      },
-    ])
-    .then((response) => {
-      switch (response.userChoice) {
-        case "Department":
-          return addDepartment();
-        case "Role":
-          return addRole();
-        case "Employee":
-          return addEmployee();
-      }
-    });
-};
 
-const viewWhat = () => {
-  inquirer
-    .prompt([
-      {
-        type: "list",
-        message: "What would you like to view?",
-        name: "toView",
-        choices: ["Department", "Role", "Employee"],
-      },
-    ])
-    .then((response) => {
-      switch (response.userChoice) {
-        case "Department":
-          return viewDepartment();
-        case "Role":
-          return viewRole();
-        case "Employee":
-          return viewEmployee();
-      }
-    });
-};
-
-const updateWhat = () => {
-  inquirer
-    .prompt([
-      {
-        type: "list",
-        message: "What category would you like to make an update to?",
-        name: "toUpdate",
-        choices: ["Department", "Role", "Employee"],
-      },
-    ])
-    .then((response) => {
-      switch (response.userChoice) {
-        case "Department":
-          return updateDepartment();
-        case "Role":
-          return updateRole();
-        case "Employee":
-          return updateEmployee();
-      }
-    });
-};
-
-const deleteWhat = () => {
-  inquirer
-    .prompt([
-      {
-        type: "list",
-        message: "What category would you like to delete an item from?",
-        name: "toDelete",
-        choices: ["Department", "Role", "Employee"],
-      },
-    ])
-    .then((response) => {
-      switch (response.userChoice) {
-        case "Department":
-          return deleteDepartment();
-        case "Role":
-          return deleteRole();
-        case "Employee":
-          return deleteEmployee();
-      }
-    });
-};
 
 givenOptions();
 
