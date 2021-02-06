@@ -5,6 +5,7 @@ const cTable = require("console.table");
 const connection = require("./connection");
 var figlet = require("figlet");
 
+
 // figlet("Welcome to CMS", function (err, data) {
 //   if (err) {
 //     console.log("Something went wrong...");
@@ -47,6 +48,7 @@ function viewAllEmployees() {
 // viewAllRoles();
 // viewAllEmployees();
 
+
 const givenOptions = () => {
   inquirer
     .prompt([
@@ -54,7 +56,7 @@ const givenOptions = () => {
         type: "list",
         message: "What would you like to do?",
         name: "userChoice",
-        choices: ["View All Employees", "Edit Employee Info", "View Roles", "Edit Roles", "View Departments", "Edit Departments"]
+        choices: ["View All Employees", "Edit Employee Info", "View Roles", "Edit Roles", "View Departments", "Add Departments", "Finished"]
       },
     ])
     .then((response) => {
@@ -69,19 +71,28 @@ const givenOptions = () => {
           return editRoles();
         case "View Departments":
           return viewAllDepartments();
-        case "Edit Departments":
-          return editDepartments();
+        case "Add Departments":
+          return addDepartments();
+        case "Finished":
+          return finished();
       }
     });
 };
 
 givenOptions();
 
+function confirmString(string) {
+  if ((string.trim() != "") && (string.trim().length <= 30)) {
+      return true;
+  }
+  return "Invalid input. Please limit your input to 30 characters or less."
+};
+
+
 function editEmployeeInfo() {
   connection.query("SELECT * FROM employee", function (err, res) {
     if (err) throw err;
-    const allEmployees = res;
-    console.table(res)
+    return res
     })
   inquirer.prompt({
       name: "editOption",
@@ -128,13 +139,29 @@ function editRoles(){
         message: "Which role would you like to edit?",
         name: "newRole",
         choices: roleNames
-      }
+      }, 
+
     ]).then((answers) => {
       console.log(answers);
     })
     // either edit entire entry (title, salary) pull departments, and list those ids
   });
 }
+
+function addDepartments(){
+  inquirer.prompt([
+    {
+        name: "depName",
+        type: "input",
+        message: "Enter new department:",
+        validate: confirmString
+    }
+]).then(answers => {
+    connection.query("INSERT INTO department (name) VALUES (?)", [answers.depName]);
+    console.log(`${answers.depName} was added to departments.`);
+    givenOptions();
+})
+};
 // /Build a command-line application that at a minimum allows the user to:
 
 
@@ -157,3 +184,15 @@ function editRoles(){
 // * Delete departments, roles, and employees   
 
 // * View the total utilized budget of a department -- ie the combined salaries of all employees in that department
+
+finished = () => {
+  figlet('Goodbye!', function(err, data) {
+  if (err) {
+      console.log('Something went wrong...');
+      console.dir(err);
+      return;
+  }
+  console.log(data)
+  connection.end(); //close the connection
+});
+}
