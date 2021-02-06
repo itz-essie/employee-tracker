@@ -17,14 +17,14 @@ var figlet = require("figlet");
 // connect to the mysql server and sql database
 connection.connect(function (err) {
   if (err) throw err;
-  console.log("connected as id " + connection.threadId);
+  // console.log("connected as id " + connection.threadId);
 });
 
 // function to view all departments
 function viewAllDepartments() {
   connection.query("select * from department", function (err, res) {
     if (err) throw err;
-    // console.table(res);
+    console.table(res);
   });
 }
 
@@ -32,20 +32,20 @@ function viewAllDepartments() {
 function viewAllRoles() {
   connection.query("select * from role", function (err, res) {
     if (err) throw err;
-    // console.table(res);
+    console.table(res);
   });
 }
 // function to view all employees
 function viewAllEmployees() {
   connection.query("select * from employee", function (err, res) {
     if (err) throw err;
-    // console.table(res);
+    console.table(res);
   });
 }
 
-viewAllDepartments();
-viewAllRoles();
-viewAllEmployees();
+// viewAllDepartments();
+// viewAllRoles();
+// viewAllEmployees();
 
 const givenOptions = () => {
   inquirer
@@ -78,21 +78,26 @@ const givenOptions = () => {
 givenOptions();
 
 function editEmployeeInfo() {
+  connection.query("SELECT * FROM employee", function (err, res) {
+    if (err) throw err;
+    const allEmployees = res;
+    console.table(res)
+    })
   inquirer.prompt({
       name: "editOption",
       type: "list",
       message: "What would you like to update?",
       choices: [
-          "Add A New Employee",
+          "Change Employee Salary",
           "Change Employee Role",
           "Change Employee Manager",
           "Remove Employee",
-          "Main Menu"
+          "Return to Menu"
       ]
   }).then(response => {
       switch (response.editOption) {
-          case "Add A New Employee":
-              addEmployee();
+          case "Change Employee Salary":
+              changeSalary();
               break;
           case "Change Employee Role":
               updateEmployeeRole();
@@ -103,7 +108,7 @@ function editEmployeeInfo() {
           case "Remove Employee":
               removeEmployee();
               break;
-          case "Main Menu":
+          case "Return to Menu":
               givenOptions();
               break;
       }
@@ -125,7 +130,7 @@ function editRoles(){
         choices: roleNames
       }
     ]).then((answers) => {
-      console.log(answers);
+      console.table(answers);
     })
     // either edit entire entry (title, salary, id) pull departments, and list those ids
   });
