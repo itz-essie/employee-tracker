@@ -61,7 +61,7 @@ const givenOptions = () => {
       switch (response.userChoice) {
         case "View All Employees":
           return viewAllEmployees();
-        case "Edit Employeee Info":
+        case "Edit Employee Info":
           return editEmployeeInfo();
         case "View Roles":
           return viewAllRoles();
@@ -130,9 +130,9 @@ function editRoles(){
         choices: roleNames
       }
     ]).then((answers) => {
-      console.table(answers);
+      console.log(answers);
     })
-    // either edit entire entry (title, salary, id) pull departments, and list those ids
+    // either edit entire entry (title, salary) pull departments, and list those ids
   });
 }
 // /Build a command-line application that at a minimum allows the user to:
