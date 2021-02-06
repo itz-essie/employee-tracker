@@ -151,14 +151,14 @@ function editRoles(){
 function addDepartments(){
   inquirer.prompt([
     {
-        name: "depName",
+        name: "departName",
         type: "input",
         message: "Enter new department:",
         validate: confirmString
     }
 ]).then(answers => {
-    connection.query("INSERT INTO department (name) VALUES (?)", [answers.depName]);
-    console.log(`${answers.depName} was added to departments.`);
+    connection.query("INSERT INTO department (name) VALUES (?)", [answers.departName]);
+    console.log(`${answers.departName} was added to departments.`);
     givenOptions();
 })
 };
