@@ -17,8 +17,7 @@ var figlet = require("figlet");
 // connect to the mysql server and sql database
 connection.connect(function (err) {
   if (err) throw err;
-  // console.log("connected as id " + connection.threadId);
-  connection.end();
+  console.log("connected as id " + connection.threadId);
 });
 
 // function to view all departments
@@ -55,7 +54,7 @@ const givenOptions = () => {
         type: "list",
         message: "What would you like to do?",
         name: "userChoice",
-        choices: ["View All Employees", "Edit Employeee Info", "View Roles", "Edit Roles", "View Departments", "Edit Departments"]
+        choices: ["View All Employees", "Edit Employee Info", "View Roles", "Edit Roles", "View Departments", "Edit Departments"]
       },
     ])
     .then((response) => {
@@ -76,10 +75,61 @@ const givenOptions = () => {
     });
 };
 
-
-
 givenOptions();
 
+function editEmployeeInfo() {
+  inquirer.prompt({
+      name: "editOption",
+      type: "list",
+      message: "What would you like to update?",
+      choices: [
+          "Add A New Employee",
+          "Change Employee Role",
+          "Change Employee Manager",
+          "Remove Employee",
+          "Main Menu"
+      ]
+  }).then(response => {
+      switch (response.editOption) {
+          case "Add A New Employee":
+              addEmployee();
+              break;
+          case "Change Employee Role":
+              updateEmployeeRole();
+              break;
+          case "Change Employee Manager":
+              updateManager();
+              break;
+          case "Remove Employee":
+              removeEmployee();
+              break;
+          case "Main Menu":
+              givenOptions();
+              break;
+      }
+  })
+};
+
+function editRoles(){
+  connection.query("SELECT * FROM role", function (err, res) {
+    if (err) throw err;
+    const roleInfo = res;
+    const roleNames = roleInfo.map((roleItem) => {
+      return roleItem.title;
+    })
+    inquirer.prompt([
+      {
+        type:"list",
+        message: "Which role would you like to edit?",
+        name: "newRole",
+        choices: roleNames
+      }
+    ]).then((answers) => {
+      console.log(answers);
+    })
+    // either edit entire entry (title, salary, id) pull departments, and list those ids
+  });
+}
 // /Build a command-line application that at a minimum allows the user to:
 
 
