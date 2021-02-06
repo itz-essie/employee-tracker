@@ -41,6 +41,7 @@ function viewAllEmployees() {
   connection.query("select * from employee", function (err, res) {
     if (err) throw err;
     console.table(res);
+    whatNow();
   });
 }
 
@@ -78,6 +79,21 @@ const givenOptions = () => {
       }
     });
 };
+const whatNow = () => {
+  inquirer.prompt([
+    {
+      name: "whatNow",
+      type: "confirm",
+      message: "Anything else?",
+    }
+  ]).then((response) => {
+    if (response.whatNow === "Yes"){
+      return givenOptions();
+    } else {
+        return finished()
+  }
+  })
+}
 
 givenOptions();
 
