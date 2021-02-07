@@ -2,7 +2,7 @@ var mysql = require("mysql");
 
 require('dotenv').config();
 
-console.log(process.env.SECRETPASSWORD);
+// console.log(process.env.SECRETPASSWORD);
 
 
 // create the connection information for the sql database
