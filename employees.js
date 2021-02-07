@@ -26,6 +26,7 @@ function viewAllDepartments() {
   connection.query("select * from department", function (err, res) {
     if (err) throw err;
     console.table(res);
+    whatNow();
   });
 }
 
@@ -34,6 +35,7 @@ function viewAllRoles() {
   connection.query("select * from role", function (err, res) {
     if (err) throw err;
     console.table(res);
+    whatNow();
   });
 }
 // function to view all employees
@@ -85,7 +87,8 @@ const givenOptions = () => {
           addDepartments();
           break;
         case "Delete":
-          Delete();
+          deleteCategory();
+          break;
         case "Finished":
           finished();
       }
@@ -96,8 +99,9 @@ const whatNow = () => {
     .prompt([
       {
         name: "whatNow",
-        type: "confirm",
+        type: "list",
         message: "Anything else?",
+        choices: ["Yes", "No"]
       },
     ])
     .then((response) => {
@@ -200,11 +204,57 @@ function addDepartments() {
 }
 
 
-
-
-function deleteCatgeory(){
+function deleteCategory(){
+  inquirer.prompt([
+   {
+    name: "deleting", 
+    type: "list", 
+    message: "What would you like to delete?", 
+    choices: ["An employee", "A department", "A role"]
+   }
+  ]).then((response) =>{
+    switch (response.deleting) {
+    case "An employee":
+      deleteEmployee();
+    break;
+    case "A department":
+      deleteDepartment();
+    break;
+    case "A role":
+      deleteRole();
+  }
+  })
 
 }
+
+function deleteEmployee(){
+  
+}
+
+function deleteDepartment() {
+  let departments = connection.query('SELECT * FROM department', function (err, res) {
+    if (err) throw err;
+    const depInfo = res;
+    const depNames = depInfo.map((obj) => {
+      return obj.title;
+    });
+  inquirer.prompt([
+      {
+          name: "depName",
+          type: "list",
+          message: "Remove which department?",
+          choices: depNames,
+      }
+  ]).then(response => {
+      if (response.depName != "Cancel") {
+          let dumpDepartment = departInfo.find(obj => obj.name === response.depName);
+          connection.query("DELETE FROM department WHERE id=?", dumpDepartment.id);
+          console.log(`${response.depName} was removed.`);
+      }
+      whatNow();
+  })
+}
+  )}
 // /Build a command-line application that at a minimum allows the user to:
 
 // * Add departments, roles, employees
