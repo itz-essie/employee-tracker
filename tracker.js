@@ -214,7 +214,6 @@ const updateWhat = async () => {
           break;
         case "Update a Role":
           updateRole();
-          await;
           break;
         case "Main Menu":
           givenOptions();
@@ -228,9 +227,15 @@ async function updateRole() {
     const roleNames = roleInfo.map((roleItem) => {
       return roleItem.title;
     });
-    // console.log({roleInfo, roleNames})
+
     inquirer
       .prompt([
+        {
+          type: "list",
+          message: "Which employee's role would you like to update?",
+          name: "selectEmployee",
+          choice: "",
+        },
         {
           type: "list",
           message: "Which role would you like to edit?",
@@ -240,11 +245,12 @@ async function updateRole() {
       ])
       .then((answers) => {
         console.log(answers);
-        
+      
       })
       // ask question about what to update about role, and then make a new input.
     // either edit entire entry (title, salary) pull departments, and list those ids
   });
+
 }
 
 function confirmString(string) {
@@ -296,6 +302,46 @@ const addRole = async () => {
     });
     }
 
+addEmployee = () => {
+  inquirer
+  .prompt([
+    {
+      name: "employAddFirst",
+      type: "input",
+      message: "What is the first name of this employee?",
+    },
+    {
+      name: "employAddLast",
+      type: "input",
+      message: "What is the last name of this employee?",
+    },
+    {
+      name: "employAddId",
+      type: "input",
+      message: "What is the role id for this job title?", //NEED TO DO SOMETHING WITH ID AND MANAGER ID with sql.
+    },
+    {
+      name: "employAddManagerId",
+      type: "input",
+      message: "What is the manager id for this job title?", //NEED TO DO SOMETHING WITH ID AND MANAGER ID with sql
+    },
+  ])
+  .then((response)=>{
+   connection.query("INSERT INTO employee SET ?",
+   {
+     first_name: response.employAddFirst,
+     last_name: response.employAddLast,
+     role_id: response.employAddId,
+     manager_id: response.employAddManagerId
+   },
+   function(err) {
+    if (err) throw err;
+    console.log("Your employee was created successfully!");
+    whatNow();
+  }
+)
+});
+} 
 
 
 finished = async () => {

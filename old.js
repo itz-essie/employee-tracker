@@ -162,6 +162,7 @@ function editEmployeeInfo() {
     });
 }
 
+
 function editRoles() {
   connection.query("SELECT * FROM role", function (err, res) {
     if (err) throw err;
@@ -175,16 +176,23 @@ function editRoles() {
           type: "list",
           message: "Which role would you like to edit?",
           name: "newRole",
-          choices: roleNames,
+          choices: roleNames(),
         },
       ])
       .then((answers) => {
         console.log(answers);
         
       })
+      const roleNames = () =>{
+        console.table("It works!")
+      };
     // either edit entire entry (title, salary) pull departments, and list those ids
-  });
+  }
+  );
+  
 }
+
+
 
 function addDepartments() {
   inquirer
