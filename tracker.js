@@ -21,7 +21,7 @@ connection.connect(function (err) {
   // console.log("connected as id " + connection.threadId);
 });
 
-const givenOptions = () => {
+const givenOptions = async () => {
   inquirer
     .prompt([
       {
@@ -52,7 +52,7 @@ const givenOptions = () => {
 };
 givenOptions();
 
-const whatNow = () => {
+const whatNow = async () => {
   inquirer
     .prompt([
       {
@@ -72,7 +72,7 @@ const whatNow = () => {
 };
 
 
-const viewWhat = () =>{
+const viewWhat = async () =>{
   inquirer.prompt([
     {
       name:"viewoptions",
@@ -97,14 +97,14 @@ const viewWhat = () =>{
 
 
 
-function viewAllDepartments() {
+async function viewAllDepartments () {
   connection.query("select * from department", function (err, res) {
     if (err) throw err;
     console.table(res);
     whatNow();
   });
 }
-function viewAllRoles() {
+async function viewAllRoles() {
   connection.query("select * from role", function (err, res) {
     if (err) throw err;
     console.table(res);
@@ -112,7 +112,7 @@ function viewAllRoles() {
   });
 }
 
-function viewAllEmployees() {
+async function viewAllEmployees() {
   connection.query("select * from employee", function (err, res) {
     if (err) throw err;
     console.table(res);
@@ -120,7 +120,9 @@ function viewAllEmployees() {
   });
 }
 
-const addWhat = () => {
+
+// Add things 
+const addWhat = async () => {
   inquirer
     .prompt([
       {
@@ -152,63 +154,105 @@ const addWhat = () => {
     });
 };
 
-const addEmployee = () => {
-  connection.query("SELECT * FROM role", function (err, res){
+// Delete things 
+const deleteWhat = async () => {
+  inquirer
+    .prompt([
+      {
+        type: "list",
+        message: "What category would you like to delete from?",
+        name: "deleteWhat",
+        choices: [
+          "Delete an Employee",
+          "Delete a Department",
+          "Delete a Role",
+          "Main Menu",
+        ],
+      },
+    ])
+    .then((response) => {
+      switch (response.addWhat) {
+        case "Delete an Employee":
+          deleteEmployee();
+          break;
+        case "Delete a Department":
+          deleteDepartment();
+          break;
+        case "Delete a Role":
+          deleteRole();
+          break;
+        case "Main Menu":
+          givenOptions();
+      }
+    });
+};
+
+//Update Things
+const updateWhat = async () => {
+  inquirer
+    .prompt([
+      {
+        type: "list",
+        message: "What category would you like to update?",
+        name: "updateWhat",
+        choices: [
+          "Update an Employee",
+          "Update a Department",
+          "Update a Role",
+          "Main Menu",
+        ],
+      },
+    ])
+    .then((response) => {
+      switch (response.updateWhat) {
+        case "Update an Employee":
+          updateEmployee();
+          break;
+        case "Update a Department":
+          updateDepartment();
+          break;
+        case "Update a Role":
+          updateRole();
+          break;
+        case "Main Menu":
+          givenOptions();
+      }
+    });
+}
+async function updateRole() {
+  connection.query("SELECT * FROM role", function (err, res) {
     if (err) throw err;
     const roleInfo = res;
-    const roletitles = roleInfo.map((roleItem) => {
+    const roleNames = roleInfo.map((roleItem) => {
       return roleItem.title;
     });
-    connection.query("SELECT manager_id FROM employee", function (err, res) {
-      if (err) throw err;
-      const mangernames = res;
-    inquirer.prompt([
+    console.log({roleInfo, roleNames})
+    inquirer
+      .prompt([
         {
-            type: "input",
-            message: "Please enter employee's first name",
-            name: "firstname",
+          type: "list",
+          message: "Which role would you like to edit?",
+          name: "newRole",
+          choices: roleNames,
         },
-        {
-            type: "input",
-            message: "Please enter employee's last name",
-            name: "lastname",
-        },
-        {
-            type: "list",
-            message: "What is the employee's role?",
-            name: "employeeRole",
-            choices: roletitles, 
-        },
-        {
-            type:"list",
-            message: "Who is the employee's manager?",
-            name: "managerName",
-            // populate from databse
-            choices: mangernames,
-        },
-    ])    .then(function(answer) {
-        // when finished prompting, insert a new employee into the db with that info
-        connection.query(
-          "INSERT INTO employee SET ?",
-          {
-            first_name: answer.firstname,
-            last_name: answer.lastname,
-            role_id: answer.employeeRole,
-            manager_id: answer.managerName
-          },
-          function(err) {
-            if (err) throw err;
-            console.log("Employee was successfully added");
-            // re-prompt the user for if they want to bid or post
-            whatNow();
-          }
-        );
-   });
-  })
-  })
+      ])
+      .then((answers) => {
+        console.log(answers);
+        
+      })
+      // ask question about what to update about role, and then make a new input.
+    // either edit entire entry (title, salary) pull departments, and list those ids
+  });
 }
 
-  function addDepartment() {
+function confirmString(string) {
+  if (string.trim() != "" && string.trim().length <= 30) {
+    return true;
+  }
+  return "Please limit your input to 30 characters or less.";
+}
+
+  async function addDepartment() {
     inquirer
       .prompt([
         {
@@ -227,12 +271,39 @@ const addEmployee = () => {
       });
   }
 
-const addRole = (roleInfo) => {
-    const departId = getDepartId(roleInfo.departmentName);
-    const salary = roleInfo.salary;
-    const title = roleInfo.roleName;
-    let query = 'INSERT into role (title, salary, department_id) VALUES (?,?,?)';
-    let userinput = [title, salary, departId];
-  connection.query(query, userinput);
-    console.log(`Added role ${title}`); 
-}
+const addRole = async () => {
+    inquirer.prompt([
+      {
+        name: "newRole",
+        type: "input", 
+        message: "What role would you like to add?",
+        validate: confirmString,
+      },
+      {
+        name: "newRoleSalary",
+        type: "input",
+        message: "What is the salary of this role?"
+      }
+      // ask what question this role belongs to...populate the list of departments
+    ]) .then((answers) => {
+      connection.query("INSERT INTO role SET ?",{
+          title: answers.newRole,
+          salary: answers.newRoleSalary
+        }
+      )
+    });
+    }
+
+
+
+finished = async () => {
+  figlet("Goodbye!", function (err, data) {
+    if (err) {
+      console.log("Something went wrong...");
+      console.dir(err);
+      return;
+    }
+    console.log(data);
+    connection.end(); //close the connection
+  });
+};
