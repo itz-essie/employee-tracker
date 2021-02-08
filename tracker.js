@@ -113,7 +113,7 @@ async function viewAllRoles() {
 }
 
 async function viewAllEmployees() {
-  connection.query("select * from employee", function (err, res) {
+  connection.query("SELECT role.id, title, salary, department.name AS department FROM role INNER JOIN department ON role.department_id = department.id", function (err, res) {
     if (err) throw err;
     console.table(res);
     whatNow();
@@ -213,6 +213,7 @@ const updateWhat = async () => {
           break;
         case "Update a Role":
           updateRole();
+          await;
           break;
         case "Main Menu":
           givenOptions();
@@ -226,7 +227,7 @@ async function updateRole() {
     const roleNames = roleInfo.map((roleItem) => {
       return roleItem.title;
     });
-    console.log({roleInfo, roleNames})
+    // console.log({roleInfo, roleNames})
     inquirer
       .prompt([
         {
