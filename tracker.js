@@ -195,6 +195,53 @@ const deleteWhat = async () => {
     });
 };
 
+
+//Delete Things
+// const deleteEmployee = () => {
+//   connection.query(`SELECT * FROM employee` , function (err, res) {
+//     if (err) throw err;
+//     const employeeList = res;
+//     const employeesnames = employeeList.map((obj) => {
+//       return obj.first_name
+//     })
+    
+//   inquirer.prompt ([
+//     {
+//       name: "deleteEmployee",
+//       type: "list",
+//       message: "Which employee would you like to delete?",
+//       choices: employeesnames,
+//     }
+    
+//   ]).then((response))
+// connection.query((`DELETE FROM employees where ?`, { first_name: answer.deleteEmployee}))
+// })
+// }
+
+// const deleteDepartment = () =>{
+//   connection.query('SELECT * FROM department', function (err, res){
+//     if (err) throw err;
+//     const departmentlist = res;
+//     console.table(res)
+//     const returndepart = departmentlist.map((item) => {
+//       return item.name
+//     })
+// inquirer.prompt([
+//   {
+//     name: "deleteADepart",
+//     type: "list",
+//     choices: ["Green", "Blue"],
+//     message: "Which department would you like to delete?",
+//   },
+// ]).then(response)
+// connection.query("DELETE FROM department (name) VALUES (?)", [
+//   response.deleteADepart,
+// ]);
+// console.log(`${response.deleteADepart} was added to departments.`);
+// whatNow();
+//   })
+// }
+
 //Update Things
 const updateWhat = async () => {
   inquirer
@@ -349,6 +396,16 @@ addEmployee = () => {
     const roleNames = roleInfo.map((roleItem) => {
       return roleItem.title;
     });
+    connection.query(`SELECT e.id, e.first_name AS "First Name", e.last_name AS "Last Name", CONCAT(m.first_name," ",m.last_name) AS "Manager" FROM employee e
+        LEFT JOIN role r ON r.id = e.role_id 
+        LEFT JOIN department d ON d.id = r.department_id 
+        LEFT JOIN employee m ON m.id = e.manager_id
+        WHERE CONCAT(m.first_name," ",m.last_name) = ? ORDER BY e.id;`, function (err, res) {
+      if (err) throw err;
+      const mangerNames = res;
+      const managerchoices = mangerNames.map((managername) => {
+        return managername
+      })
     inquirer
       .prompt([
         {
@@ -371,7 +428,7 @@ addEmployee = () => {
           name: "employAddManagerId",
           type: "list",
           message: "Who is the employee's manager?",
-          choices: [""], //NEED TO DO SOMETHING WITH ID AND MANAGER ID with sql
+          choices: managerchoices, //NEED TO DO SOMETHING WITH ID AND MANAGER ID with sql
         },
       ])
       .then((response) => {
@@ -390,6 +447,7 @@ addEmployee = () => {
           }
         );
       });
+    })
   });
 };
 
