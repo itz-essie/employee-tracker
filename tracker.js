@@ -179,7 +179,7 @@ const deleteWhat = async () => {
       },
     ])
     .then((response) => {
-      switch (response.addWhat) {
+      switch (response.deleteWhat) {
         case "Delete an Employee":
           deleteEmployee();
           break;
@@ -197,27 +197,29 @@ const deleteWhat = async () => {
 
 
 //Delete Things
-// const deleteEmployee = () => {
-//   connection.query(`SELECT * FROM employee` , function (err, res) {
-//     if (err) throw err;
-//     const employeeList = res;
-//     const employeesnames = employeeList.map((obj) => {
-//       return obj.first_name
-//     })
+const deleteEmployee = async () => {
+   connection.query(`SELECT * FROM employee` , function (err, res) {
+    if (err) throw err;
+    const employeeList = res;
+    const employeesnames = employeeList.map((obj) => {
+      return obj.first_name
+    })
+    // console.log(employeesnames)
+  inquirer.prompt ([
+    {
+      name: "deleteEmployee",
+      type: "list",
+      message: "Which employee would you like to delete?",
+      choices: employeesnames,
+    }
     
-//   inquirer.prompt ([
-//     {
-//       name: "deleteEmployee",
-//       type: "list",
-//       message: "Which employee would you like to delete?",
-//       choices: employeesnames,
-//     }
-    
-//   ]).then((response))
-// connection.query((`DELETE FROM employees where ?`, { first_name: answer.deleteEmployee}))
-// })
-// }
+  ]).then((response) => {
 
+  
+connection.query((`DELETE FROM employees where ?`, { first_name: response.deleteEmployee}))
+})
+})
+}
 // const deleteDepartment = () =>{
 //   connection.query('SELECT * FROM department', function (err, res){
 //     if (err) throw err;
