@@ -248,6 +248,30 @@ whatNow();
   })
 }
 
+const deleteRole = () => {
+  connection.query("SELECT role.id, title, salary, department.name AS department FROM role INNER JOIN department ON role.department_id = department.id", function(err, res) {
+    if (err) throw err;
+    const allRoles = res;
+    const roleNames = allRoles.map((obj) => {
+      return obj.title
+    }); inquirer.prompt([
+      {
+        type: "list",
+        message: "Which role would you like to delete?",
+        name: "deleteRole",
+        choices: roleNames,
+      }
+    ]).then((answers) => {
+      connection.query("DELETE FROM role WHERE (title) = ?", [
+        answers.deleteRole, ])
+        console.log(`${answers.deleteRole} was deleted from roles.`);
+        console.log("---------------------------");
+whatNow();
+    })
+  })
+}
+
+
 //Update Things
 const updateWhat = async () => {
   inquirer
@@ -280,54 +304,107 @@ const updateWhat = async () => {
       }
     });
 };
-async function updateRole() {
-  connection.query("SELECT * FROM role", function (err, res) {
-    if (err) throw err;
-    const roleInfo = res;
-    const roleNames = roleInfo.map((roleItem) => {
-      return roleItem.title;
-    });
-    connection.query("SELECT * FROM employee", function (err, res) {
-      if (err) throw err;
-      const employeeInfo = res;
-      const employeeNames = employeeInfo.map((roleItem) => {
-        return roleItem.first_name;
-      });
+// async function updateRole() {
+//   connection.query("SELECT * FROM role", function (err, res) {
+//     if (err) throw err;
+//     const roleInfo = res;
+//     const roleNames = roleInfo.map((roleItem) => {
+//       return roleItem.title;
+//     });
+//     connection.query("SELECT * FROM employee", function (err, res) {
+//       if (err) throw err;
+//       const employeeInfo = res;
+//       const employeeNames = employeeInfo.map((roleItem) => {
+//         return roleItem.first_name;
+//       });
 
-      inquirer
-        .prompt([
-          {
-            type: "list",
-            message: "Which employee's role would you like to update?",
-            name: "selectEmployee",
-            choices: employeeNames,
-          },
-          {
-            type: "list",
-            message: "Which role would you like to edit?",
-            name: "newRole",
-            choices: roleNames,
-          },
-        ])
-        .then((answers) => {
-          connection.query(
-            `UPDATE employees SET role_id = (SELECT id FROM roles WHERE title = ? ) WHERE id = (SELECT id FROM(SELECT id FROM employees WHERE CONCAT(first_name," ",last_name) = ?) AS tmptable)`,
-            [answers.newRole, answers.selectEmployee],
-            (err, res) => {
-              if (err) throw err;
-              console.log(res);
-              whatNow();
+//       inquirer
+//         .prompt([
+//           {
+//             type: "list",
+//             message: "Which employee's role would you like to update?",
+//             name: "selectEmployee",
+//             choices: employeeNames,
+//           },
+//           {
+//             type: "list",
+//             message: "Which role would you like to edit?",
+//             name: "newRole",
+//             choices: roleNames,
+//           },
+//         ])
+//         .then((answers) => {
+//           connection.query(
+//             `UPDATE employees SET role_id = (SELECT id FROM roles WHERE title = ? ) WHERE id = (SELECT id FROM(SELECT id FROM employees WHERE CONCAT(first_name," ",last_name) = ?) AS tmptable)`,
+//             [answers.newRole, answers.selectEmployee],
+//             (err, res) => {
+//               if (err) throw err;
+//               console.log(res);
+//               whatNow();
 
-              // console.log(answers);
-            }
-          );
-        });
+//               // console.log(answers);
+//             }
+//           );
+//         });
 
       // ask question about what to update about role, and then make a new input.
       // either edit entire entry (title, salary) pull departments, and list those ids
-    });
-  });
+//     });
+//   });
+// }
+
+function AllEmployees() {
+  return new Promise (function(resolve,reject){
+    connection.query(`SELECT * FROM employee`, function (err, res) {
+        if (err) reject(err);
+         var Employees = res.map((employee)=> { 
+           console.log(employee)
+          return employee.first_name;  
+          })
+        resolve(Employees)
+      });
+  })
 }
+
+updateEmployee = async () => {
+  connection.query("SELECT * from role", async function (err, res){
+    if (err) throw err;
+    var roleResult = res; //all role results in the list defined
+    var roleOfNames = roleResult.map((updateRole)=> { //mapping out to get the information you ACTUALLY want.
+    return updateRole.title;  
+    }) 
+    var employees = await  AllEmployees();
+  inquirer
+  .prompt([
+    {
+      name: "updateEmployee",
+      type: "list",
+      message: "Which employee would you like to update?",
+      choices: employees
+    },
+    {
+      name: "newRole",
+      type: "list",
+      message: "What is the new role for this person?",
+      choices: roleOfNames
+    },
+  ]).then((response)=>{
+    //Pick the employee you would like to update, pick the new role they have THEN updating employee information.
+    connection.query(`SELECT * FROM role WHERE title = '${response.newRole}'`, function(err, role){
+    connection.query(`SELECT * FROM employee WHERE first_name = '${response.updateEmployee}'`, function(err,user){
+      connection.query(`UPDATE employee SET role_id = ? WHERE id = ?`,[role[0].id, user[0].id], function(err,res){
+        console.log(`Updated User: ${response.updateEmployee}`)
+        viewAllEmployees();
+      }) 
+    })
+    
+    })
+    
+  })
+  })
+}
+
+
 
 function confirmString(string) {
   if (string.trim() != "" && string.trim().length <= 30) {
