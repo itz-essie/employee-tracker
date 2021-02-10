@@ -202,7 +202,7 @@ const deleteEmployee = async () => {
     if (err) throw err;
     const employeeList = res;
     const employeesnames = employeeList.map((obj) => {
-      return obj.first_name
+      return (obj.role_id + " " + obj.first_name + " " + obj.last_name)
     })
     // console.log(employeesnames)
   inquirer.prompt ([
@@ -216,33 +216,37 @@ const deleteEmployee = async () => {
   ]).then((response) => {
 
   
-connection.query((`DELETE FROM employees where ?`, { first_name: response.deleteEmployee}))
+connection.query((`DELETE FROM employee where ?`, { first_name, last_name: response.deleteEmployee}))
+console.table(viewAllEmployees)
+whatNow();
 })
 })
+
 }
-// const deleteDepartment = () =>{
-//   connection.query('SELECT * FROM department', function (err, res){
-//     if (err) throw err;
-//     const departmentlist = res;
-//     console.table(res)
-//     const returndepart = departmentlist.map((item) => {
-//       return item.name
-//     })
-// inquirer.prompt([
-//   {
-//     name: "deleteADepart",
-//     type: "list",
-//     choices: ["Green", "Blue"],
-//     message: "Which department would you like to delete?",
-//   },
-// ]).then(response)
-// connection.query("DELETE FROM department (name) VALUES (?)", [
-//   response.deleteADepart,
-// ]);
-// console.log(`${response.deleteADepart} was added to departments.`);
-// whatNow();
-//   })
-// }
+const deleteDepartment = () =>{
+  connection.query('SELECT * FROM department', function (err, res){
+    if (err) throw err;
+    const departmentlist = res;
+    // console.table(res)
+    const returndepart = departmentlist.map((item) => {
+      return item.name
+    })
+inquirer.prompt([
+  {
+    name: "deleteADepart",
+    type: "list",
+    choices: returndepart,
+    message: "Which department would you like to delete?",
+  },
+]).then((response) => {
+connection.query("DELETE FROM department WHERE (name) = ?", [
+  response.deleteADepart,
+]);
+console.log(`${response.deleteADepart} was deleted from departments.`);
+whatNow();
+})
+  })
+}
 
 //Update Things
 const updateWhat = async () => {
@@ -398,16 +402,13 @@ addEmployee = () => {
     const roleNames = roleInfo.map((roleItem) => {
       return roleItem.title;
     });
-    connection.query(`SELECT e.id, e.first_name AS "First Name", e.last_name AS "Last Name", CONCAT(m.first_name," ",m.last_name) AS "Manager" FROM employee e
-        LEFT JOIN role r ON r.id = e.role_id 
-        LEFT JOIN department d ON d.id = r.department_id 
-        LEFT JOIN employee m ON m.id = e.manager_id
-        WHERE CONCAT(m.first_name," ",m.last_name) = ? ORDER BY e.id;`, function (err, res) {
+    connection.query('SELECT first_name, last_name FROM employee WHERE manager_id IS NULL;', function(err, res) {
       if (err) throw err;
-      const mangerNames = res;
-      const managerchoices = mangerNames.map((managername) => {
-        return managername
+      const managernames = res;
+      const managerChoices = managernames.map((obj) => {
+        return (obj.first_name + " " + obj.last_name)
       })
+      console.table(res)
     inquirer
       .prompt([
         {
@@ -430,7 +431,7 @@ addEmployee = () => {
           name: "employAddManagerId",
           type: "list",
           message: "Who is the employee's manager?",
-          choices: managerchoices, //NEED TO DO SOMETHING WITH ID AND MANAGER ID with sql
+          choices: managerChoices, //NEED TO DO SOMETHING WITH ID AND MANAGER ID with sql
         },
       ])
       .then((response) => {
@@ -439,7 +440,6 @@ addEmployee = () => {
           {
             first_name: response.employAddFirst,
             last_name: response.employAddLast,
-            role_id: response.employAdd,
             manager_id: response.employAddManagerId,
           },
           function (err) {
