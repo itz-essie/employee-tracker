@@ -503,7 +503,7 @@ addEmployee = () => {
         if (err) throw err;
         const managernames = res;
         const managerChoices = managernames.map((obj) => {
-          return obj.first_name + " " + obj.last_name;
+          return (obj.first_name + " " + obj.last_name);
         });
         console.table(res);
         inquirer
@@ -524,12 +524,12 @@ addEmployee = () => {
               message: "What is the employee's role?",
               choices: roleNames, //NEED TO DO SOMETHING WITH ID AND MANAGER ID with sql.
             },
-            {
-              name: "employAddManagerId",
-              type: "list",
-              message: "Who is the employee's manager?",
-              choices: managerChoices, //NEED TO DO SOMETHING WITH ID AND MANAGER ID with sql
-            },
+            // {
+            //   name: "employAddManagerId",
+            //   type: "list",
+            //   message: "Who is the employee's manager?",
+            //   choices: managerChoices, //NEED TO DO SOMETHING WITH ID AND MANAGER ID with sql
+            // },
           ])
           .then((response) => {
             connection.query(
