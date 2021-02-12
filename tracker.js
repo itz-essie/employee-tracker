@@ -476,7 +476,6 @@ const addRole = () => {
           choices: departmentList,
           message: "Select the Department for this new Title:",
         },
-        // ask what question this role belongs to...populate the list of departments
       ])
       .then((answer) => {
         connection.query(
@@ -497,14 +496,35 @@ addEmployee = () => {
     const roleNames = roleInfo.map((roleItem) => {
       return roleItem.title;
     });
+
+    const roleId = roleInfo.map((obj) => {
+      const roleTitles = obj.title
+       const roleObj = {
+         [roleTitles]:obj.department_id
+       }
+       console.log(roleObj)
+       return  roleObj
+     })
+
+
+  
     connection.query(
-      "SELECT first_name, last_name FROM employee WHERE manager_id IS NULL;",
+      "SELECT first_name, last_name, role_id FROM employee WHERE manager_id IS NULL;",
       function (err, res) {
         if (err) throw err;
         const managernames = res;
         const managerChoices = managernames.map((obj) => {
           return (obj.first_name + " " + obj.last_name);
+          
         });
+        const managerId = managernames.map((obj) => {
+         const managername = obj.first_name + " " + obj.last_name;
+          const managerobj = {
+            [managername]:obj.role_id
+          }
+          console.log(managerobj)
+          return  managerobj
+        })
         console.table(res);
         inquirer
           .prompt([
@@ -524,32 +544,27 @@ addEmployee = () => {
               message: "What is the employee's role?",
               choices: roleNames, //NEED TO DO SOMETHING WITH ID AND MANAGER ID with sql.
             },
-            // {
-            //   name: "employAddManagerId",
-            //   type: "list",
-            //   message: "Who is the employee's manager?",
-            //   choices: managerChoices, //NEED TO DO SOMETHING WITH ID AND MANAGER ID with sql
-            // },
+            {
+              name: "employAddManagerId",
+              type: "list",
+              message: "Who is the employee's manager?",
+              choices: managerChoices, //NEED TO DO SOMETHING WITH ID AND MANAGER ID with sql
+            },
           ])
           .then((response) => {
+            const rolenameandId = roleId[response.employAdd]
+            const managerid = managerId[response.employAddManagerId]
             connection.query(
-              "INSERT INTO employee SET ?",
-              {
-                first_name: response.employAddFirst,
-                last_name: response.employAddLast,
-                manager_id: response.employAddManagerId,
-              },
-              function (err) {
-                if (err) throw err;
-                console.log("Your employee was created successfully!");
-                whatNow();
-              }
+              `INSERT INTO employee(first_name, last_name, role_id) VALUES ("${response.employAddFirst}", "${response.employAddLast}", (SELECT id FROM role WHERE title = "${response.employAdd}")`
             );
+                console.log();
+                whatNow();
           });
+          })
       }
     );
-  });
-};
+  };
+
 
 finished = async () => {
   figlet("Goodbye!", function (err, data) {
