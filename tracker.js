@@ -5,20 +5,12 @@ const cTable = require("console.table");
 const connection = require("./connection");
 var figlet = require("figlet");
 
-// figlet("Welcome to CMS", function (err, data) {
-//   if (err) {
-//     console.log("Something went wrong...");
-//     console.dir(err);
-//     return;
-//   }
-//   console.log(data);
-// });
 
 // connect to the mysql server and sql database
 connection.connect(function (err) {
   if (err) throw err;
 
-  // console.log("connected as id " + connection.threadId);
+  viewAllEmployees();
 });
 
 const givenOptions = async () => {
@@ -50,7 +42,7 @@ const givenOptions = async () => {
       }
     });
 };
-givenOptions();
+
 
 const whatNow = async () => {
   inquirer
@@ -58,7 +50,7 @@ const whatNow = async () => {
       {
         name: "whatNow",
         type: "list",
-        message: "Anything else?",
+        message: "Would you like to continue?",
         choices: ["Yes", "No"],
       },
     ])
@@ -171,7 +163,6 @@ const deleteWhat = async () => {
         message: "What category would you like to delete from?",
         name: "deleteWhat",
         choices: [
-          "Delete an Employee",
           "Delete a Department",
           "Delete a Role",
           "Main Menu",
@@ -180,9 +171,6 @@ const deleteWhat = async () => {
     ])
     .then((response) => {
       switch (response.deleteWhat) {
-        case "Delete an Employee":
-          deleteEmployee();
-          break;
         case "Delete a Department":
           deleteDepartment();
           break;
@@ -196,33 +184,6 @@ const deleteWhat = async () => {
 };
 
 //Delete Things
-const deleteEmployee = async () => {
-  connection.query(`SELECT * FROM employee`, function (err, res) {
-    if (err) throw err;
-    const employeeList = res;
-    const employeesnames = employeeList.map((obj) => {
-      return obj.role_id + " " + obj.first_name + " " + obj.last_name;
-    });
-    // console.log(employeesnames)
-    inquirer
-      .prompt([
-        {
-          name: "deleteEmployee",
-          type: "list",
-          message: "Which employee would you like to delete?",
-          choices: employeesnames,
-        },
-      ])
-      .then((response) => {
-        connection.query(
-          (`DELETE FROM employee where ?`,
-          { first_name, last_name: response.deleteEmployee })
-        );
-        console.table(viewAllEmployees);
-        whatNow();
-      });
-  });
-};
 const deleteDepartment = () => {
   connection.query("SELECT * FROM department", function (err, res) {
     if (err) throw err;
@@ -290,8 +251,6 @@ const updateWhat = async () => {
         name: "updateWhat",
         choices: [
           "Update an Employee",
-          "Update a Department",
-          "Update a Role",
           "Main Menu",
         ],
       },
@@ -301,65 +260,11 @@ const updateWhat = async () => {
         case "Update an Employee":
           updateEmployee();
           break;
-        case "Update a Department":
-          updateDepartment();
-          break;
-        case "Update a Role":
-          updateRole();
-          break;
         case "Main Menu":
           givenOptions();
       }
     });
 };
-// async function updateRole() {
-//   connection.query("SELECT * FROM role", function (err, res) {
-//     if (err) throw err;
-//     const roleInfo = res;
-//     const roleNames = roleInfo.map((roleItem) => {
-//       return roleItem.title;
-//     });
-//     connection.query("SELECT * FROM employee", function (err, res) {
-//       if (err) throw err;
-//       const employeeInfo = res;
-//       const employeeNames = employeeInfo.map((roleItem) => {
-//         return roleItem.first_name;
-//       });
-
-//       inquirer
-//         .prompt([
-//           {
-//             type: "list",
-//             message: "Which employee's role would you like to update?",
-//             name: "selectEmployee",
-//             choices: employeeNames,
-//           },
-//           {
-//             type: "list",
-//             message: "Which role would you like to edit?",
-//             name: "newRole",
-//             choices: roleNames,
-//           },
-//         ])
-//         .then((answers) => {
-//           connection.query(
-//             `UPDATE employees SET role_id = (SELECT id FROM roles WHERE title = ? ) WHERE id = (SELECT id FROM(SELECT id FROM employees WHERE CONCAT(first_name," ",last_name) = ?) AS tmptable)`,
-//             [answers.newRole, answers.selectEmployee],
-//             (err, res) => {
-//               if (err) throw err;
-//               console.log(res);
-//               whatNow();
-
-//               // console.log(answers);
-//             }
-//           );
-//         });
-
-// ask question about what to update about role, and then make a new input.
-// either edit entire entry (title, salary) pull departments, and list those ids
-//     });
-//   });
-// }
 
 function AllEmployees() {
   return new Promise(function (resolve, reject) {
@@ -557,7 +462,7 @@ addEmployee = () => {
             connection.query(
               `INSERT INTO employee(first_name, last_name, role_id) VALUES ("${response.employAddFirst}", "${response.employAddLast}", (SELECT id FROM role WHERE title = "${response.employAdd}")`
             );
-                console.log();
+                console.log(`INSERT INTO employee(first_name, last_name, role_id) VALUES ("${response.employAddFirst}", "${response.employAddLast}", (SELECT id FROM role WHERE title = "${response.employAdd}"`);
                 whatNow();
           });
           })
