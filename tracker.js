@@ -205,7 +205,9 @@ const deleteDepartment = () => {
         connection.query("DELETE FROM department WHERE (name) = ?", [
           response.deleteADepart,
         ]);
+        console.log("---------------------------")
         console.log(`${response.deleteADepart} was deleted from departments.`);
+        console.log("---------------------------")
         whatNow();
       });
   });
@@ -233,6 +235,7 @@ const deleteRole = () => {
           connection.query("DELETE FROM role WHERE (title) = ?", [
             answers.deleteRole,
           ]);
+          console.log("---------------------------")
           console.log(`${answers.deleteRole} was deleted from roles.`);
           console.log("---------------------------");
           whatNow();
@@ -315,7 +318,9 @@ updateEmployee = async () => {
                   `UPDATE employee SET role_id = ? WHERE id = ?`,
                   [role[0].id, user[0].id],
                   function (err, res) {
+                    console.log("---------------------------")
                     console.log(`Updated User: ${response.updateEmployee}`);
+                    console.log("---------------------------")
                     viewAllEmployees();
                   }
                 );
